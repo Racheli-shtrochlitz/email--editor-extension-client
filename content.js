@@ -33,7 +33,6 @@
         const msgId = 'msg-' + Date.now();
         console.log('Preparing to send message with ID:', msgId, 'content: ', content);
 
-        // שליחת התוכן לשרת
         const response = await fetch(
           `https://email-editor-extension.onrender.com/api/message/${encodeURIComponent(msgId)}`,
           {
