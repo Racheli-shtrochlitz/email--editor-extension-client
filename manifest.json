@@ -1,0 +1,16 @@
+{
+    "manifest_version": 3,
+    "name": "Gmail Smart Send with Cloud Edit",
+    "version": "1.0",
+    "description": "Adds a custom send-with-edit button to Gmail compose window.",
+    "permissions": ["scripting", "activeTab", "storage"],
+    "host_permissions": ["https://mail.google.com/*", "https://email-editor-extension.onrender.com/*"],
+    "content_scripts": [
+      {
+        "matches": ["https://mail.google.com/*"],
+        "js": ["content.js"],
+        "run_at": "document_end"
+      }
+    ]
+  }
+  
