@@ -79,7 +79,6 @@
 
       const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null, false);
       let textNode;
-      let foundMatch = false;
 
       while (textNode = walker.nextNode()) {
         const text = textNode.textContent;
@@ -88,7 +87,6 @@
         const match = text.match(/\[\[CLOUD:([^\]]+)\]\]\s*Loading\s+content\s+from\s+cloud\s+editor\.\.\./);
         if (!match) continue;
 
-        foundMatch = true;
         const msgId = match[1];
         const fullMatch = match[0];
 
