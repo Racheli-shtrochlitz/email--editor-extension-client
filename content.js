@@ -65,59 +65,58 @@
       }, 200);
     });
   }
-  
+
   async function loadCloudContentElements(targetElement) {
-    if (!targetElement) {
-      targetElement = document.body;
-    }
-
+    if (!targetElement) targetElement = document.body;
+  
     console.log('🔍 סריקה למציאת תגיות [[CLOUD:...]] באלמנט:', targetElement);
-
+  
     const elements = Array.from(targetElement.querySelectorAll('span, em, div, p'));
-
     for (const el of elements) {
       if (el.dataset && el.dataset.loaded === 'true') continue;
-
+  
       const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null, false);
       let textNode;
-
+  
       while (textNode = walker.nextNode()) {
         const text = textNode.textContent;
         if (!text) continue;
-
+  
         const match = text.match(/\[\[CLOUD:([^\]]+)\]\]\s*Loading\s+content\s+from\s+cloud\s+editor\.\.\./);
         if (!match) continue;
-
+  
         const msgId = match[1];
-        const fullMatch = match[0];
-
-        console.log('🆔 נמצא מזהה הודעה בענן:', msgId, 'בטקסט:', text.substring(0, 50));
-
-        const originalText = text;
-        textNode.textContent = text.replace(fullMatch, `[Loading content from cloud editor (${msgId})...]`);
-
+        console.log('🆔 נמצא מזהה הודעה בענן:', msgId);
+  
         try {
           const res = await fetch(
             `https://email-editor-extension.onrender.com/api/message/${encodeURIComponent(msgId)}`
           );
           const data = await res.json();
-
+  
           if (data?.text) {
-            textNode.textContent = originalText.replace(fullMatch, data.text);
-            console.log('✅ תוכן טעון בהצלחה עבור', msgId);
+            const container = document.createElement('div');
+            container.innerHTML = data.text;
+  
+            const parent = textNode.parentNode;
+            if (parent) {
+              parent.replaceWith(...container.childNodes);
+            }
+  
+            console.log('✅ HTML נטען בהצלחה עבור', msgId);
           } else {
-            textNode.textContent = originalText.replace(fullMatch, `⚠️ Failed to load content (${msgId})`);
+            textNode.textContent = `⚠️ Failed to load content (${msgId})`;
             console.error('❌ לא התקבל תוכן עבור', msgId);
           }
         } catch (e) {
           console.error('Cloud content load error:', e);
-          textNode.textContent = originalText.replace(fullMatch, 'Error loading content');
+          textNode.textContent = 'Error loading content';
         }
-
+  
         break; 
       }
     }
-  }
+  }  
 
   let lastUrl = location.href;
   setInterval(() => {
