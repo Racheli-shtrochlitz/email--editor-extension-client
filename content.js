@@ -1,69 +1,71 @@
 (() => {
   console.log('📬 Gmail Cloud Editor Extension Loaded');
 
-  function createButton(composeWindow) {
-    if (composeWindow.querySelector('.custom-send-edit')) return;
-
-    const newBtn = document.createElement('div');
-    newBtn.className = 'custom-send-edit';
-    newBtn.textContent = 'שלח עם עריכה';
-    newBtn.style.cssText = `
-      position: absolute;
-      bottom: 110px;
-      right: 20px;
-      background: #007bff;
-      color: white;
-      border-radius: 4px;
-      padding: 8px 14px;
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-      z-index: 9999;
-    `;
-
-    newBtn.addEventListener('click', async () => {
-      try {
-        const bodyEl = composeWindow.querySelector(
-          'div[aria-label="Message Body"], div[aria-label="Message body"], div[contenteditable="true"][role="textbox"], div[contenteditable="true"]'
-        );
-        if (!bodyEl) return console.warn('❌ Body not found');
-
-        const content = bodyEl.innerHTML;
-        const msgId = 'msg-' + Date.now();
-        console.log('Preparing to send message with ID:', msgId, 'content: ', content);
-
-        const response = await fetch(
-          `https://email-editor-extension.onrender.com/api/message/${encodeURIComponent(msgId)}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text: content }),
-          }
-        );
-
-        const result = await response.json();
-        if (!response.ok || !result?.success) {
-          throw new Error(result?.message || 'Server error');
-        }
-
-        const placeholder = `
-        <em>[[CLOUD:${msgId}]] Loading content from cloud editor...</em>
-        `;
-
-        bodyEl.innerHTML = placeholder;
-
-        console.log('✅ Message prepared for cloud edit:', msgId);
-      } catch (e) {
-        console.error('❌ Failed to process message:', e);
-      }
+  function createButton() {
+    document.body.addEventListener('click', (e) => {
+      const sendDropdownButton = e.target.closest('div[aria-label*="אפשרויות שליחה"], div[aria-label*="Send options"]');
+      if (!sendDropdownButton) return;
+  
+      setTimeout(() => {
+        document.querySelectorAll('.J-M').forEach(dropdown => {
+          if (dropdown.querySelector('.custom-send-edit')) return; 
+  
+          const newItem = document.createElement('div');
+          newItem.className = 'J-N J-Ph custom-send-edit';
+          newItem.textContent = 'שלח עם עריכה';
+          newItem.style.cssText = `
+            cursor: pointer;
+            padding: 8px 16px;
+            font-size: 14px bold;
+          `;
+          newItem.addEventListener('mouseenter', () => newItem.style.background = '#f1f3f4');
+          newItem.addEventListener('mouseleave', () => newItem.style.background = 'transparent');
+  
+          newItem.addEventListener('click', async (ev) => {
+            ev.stopPropagation();
+            try {
+              const composeWindow = dropdown.closest('div[role="dialog"]') || document;
+              const bodyEl = composeWindow.querySelector(
+                'div[aria-label="Message Body"], div[aria-label="Message body"], div[contenteditable="true"][role="textbox"], div[contenteditable="true"]'
+              );
+              if (!bodyEl) return console.warn('❌ Body not found');
+  
+              const content = bodyEl.innerHTML;
+              const msgId = 'msg-' + Date.now();
+  
+              console.log('Preparing to send message with ID:', msgId);
+  
+              const response = await fetch(
+                `https://email-editor-extension.onrender.com/api/message/${encodeURIComponent(msgId)}`,
+                {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ text: content }),
+                }
+              );
+  
+              const result = await response.json();
+              if (!response.ok || !result?.success)
+                throw new Error(result?.message || 'Server error');
+  
+              bodyEl.innerHTML = `<em>[[CLOUD:${msgId}]] Loading content from cloud editor...</em>`;
+              console.log('✅ Message prepared for cloud edit:', msgId);
+  
+              const sendButton = composeWindow.querySelector('div[role="button"][data-tooltip*="שליחה"], div[role="button"][data-tooltip*="Send"]');
+              if (sendButton) sendButton.click();
+              else console.warn('⚠️ Send button not found to click');
+            } catch (err) {
+              console.error('❌ Failed to process message:', err);
+            }
+          });
+  
+          dropdown.appendChild(newItem);
+          console.log('✅ "שלח עם עריכה" נוסף לתפריט השליחה');
+        });
+      }, 200);
     });
-
-    composeWindow.style.position = 'relative';
-    composeWindow.appendChild(newBtn);
-    console.log('✅ כפתור "Send with Edit" נוסף לחלון כתיבה');
   }
-
+  
   async function loadCloudContentElements(targetElement) {
     if (!targetElement) {
       targetElement = document.body;
