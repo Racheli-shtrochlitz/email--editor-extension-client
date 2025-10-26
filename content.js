@@ -9,8 +9,8 @@
     newBtn.textContent = 'שלח עם עריכה';
     newBtn.style.cssText = `
       position: absolute;
-      bottom: 10px;
-      right: 100px;
+      bottom: 110px;
+      right: 20px;
       background: #007bff;
       color: white;
       border-radius: 4px;
