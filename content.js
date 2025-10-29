@@ -48,7 +48,8 @@
               if (!response.ok || !result?.success)
                 throw new Error(result?.message || 'Server error');
   
-              bodyEl.innerHTML = `<em>[[CLOUD:${msgId}]] Loading content from cloud editor...</em>`;
+              // כאן רק המזהה בלבד
+              bodyEl.innerHTML = `<em>${msgId}</em>`;
               console.log('✅ Message prepared for cloud edit:', msgId);
   
               const sendButton = composeWindow.querySelector('div[role="button"][data-tooltip*="שליחה"], div[role="button"][data-tooltip*="Send"]');
@@ -69,7 +70,7 @@
   async function loadCloudContentElements(targetElement) {
     if (!targetElement) targetElement = document.body;
   
-    console.log('🔍 סריקה למציאת תגיות [[CLOUD:...]] באלמנט:', targetElement);
+    console.log('🔍 סריקה למציאת מזהים באלמנט:', targetElement);
   
     const elements = Array.from(targetElement.querySelectorAll('span, em, div, p'));
     for (const el of elements) {
@@ -82,7 +83,7 @@
         const text = textNode.textContent;
         if (!text) continue;
   
-        const match = text.match(/\[\[CLOUD:([^\]]+)\]\]\s*Loading\s+content\s+from\s+cloud\s+editor\.\.\./);
+        const match = text.match(/(msg-\d+)/);
         if (!match) continue;
   
         const msgId = match[1];
