@@ -73,7 +73,6 @@
   
     const elements = Array.from(targetElement.querySelectorAll('span, em, div, p'));
     for (const el of elements) {
-      if (el.dataset && el.dataset.loaded === 'true') continue;
   
       const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null, false);
       let textNode;
