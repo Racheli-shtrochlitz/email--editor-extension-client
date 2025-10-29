@@ -48,8 +48,7 @@
               if (!response.ok || !result?.success)
                 throw new Error(result?.message || 'Server error');
   
-              // כאן רק המזהה בלבד
-              bodyEl.innerHTML = `<em>${msgId}</em>`;
+              bodyEl.innerHTML = `<em style="display:none;">${msgId}</em>`;
               console.log('✅ Message prepared for cloud edit:', msgId);
   
               const sendButton = composeWindow.querySelector('div[role="button"][data-tooltip*="שליחה"], div[role="button"][data-tooltip*="Send"]');
